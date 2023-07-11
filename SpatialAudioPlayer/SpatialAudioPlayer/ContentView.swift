@@ -4,50 +4,70 @@
 //
 //  Created by Takuya on 2023/07/11.
 //
-
+import Swift
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import AVFoundation
+
+let musicData = NSDataAsset(name: "bgm01")!.data
+
+private var musicPlayer: AVAudioPlayer!
+
 
 struct ContentView: View {
-
+    
+    @State var isPlay = false
     @State var showImmersiveSpace = false
-
+    
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
-
-    var body: some View {
-        NavigationSplitView {
-            List {
-                Text("Item")
+    
+    
+    private func playSound(){
+        do{
+            musicPlayer = try AVAudioPlayer(data: musicData)
+            
+            if isPlay {
+                isPlay = false
+                musicPlayer.pause()
+            } else {
+                isPlay = true
+                musicPlayer.play()
             }
-            .navigationTitle("Sidebar")
-        } detail: {
-            VStack {
-                Model3D(named: "Scene", bundle: realityKitContentBundle)
-                    .padding(.bottom, 50)
-
-                Text("Hello, world!")
-
-                Toggle("Show ImmersiveSpace", isOn: $showImmersiveSpace)
-                    .toggleStyle(.button)
-                    .padding(.top, 50)
-            }
-            .navigationTitle("Content")
-            .padding()
+        } catch {
+            print("音の再生に失敗しました。")
         }
-        .onChange(of: showImmersiveSpace) { _, newValue in
-            Task {
-                if newValue {
-                    await openImmersiveSpace(id: "ImmersiveSpace")
+    }
+    
+    var body: some View {
+        VStack {
+            Model3D(named: "Scene", bundle: realityKitContentBundle)
+                .padding(.bottom, 50)
+        
+        
+            Button(action: {
+                    playSound()//追加④　メソッド発動
+            }) {
+                if isPlay {
+                    Text("Pause")
+                        .font(.title)
                 } else {
-                    await dismissImmersiveSpace()
+                    Text("Play")
+                        .font(.title)
                 }
             }
         }
+        
     }
+    
 }
+
+
 
 #Preview {
     ContentView()
 }
+
+
+

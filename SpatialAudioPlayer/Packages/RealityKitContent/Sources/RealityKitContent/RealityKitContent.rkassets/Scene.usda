@@ -5,10 +5,12 @@
     upAxis = "Y"
 )
 
-def Xform "Root"
+def Xform "Root" (
+    prepend apiSchemas = ["MaterialBindingAPI"]
+)
 {
     reorder nameChildren = ["Sphere", "_GridMaterial", "_PlainMaterial"]
-    rel material:binding = None (
+    rel material:binding = </Root/Material> (
         bindMaterialAs = "weakerThanDescendants"
     )
 
@@ -54,6 +56,80 @@ def Xform "Root"
     {
         float3 xformOp:scale = (1, 1, 1)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        over "Material"
+        {
+            float2 ui:nodegraph:realitykit:subgraphOutputs:size = (181.5, 99)
+
+            over "UsdPreviewSurface"
+            {
+                color3f inputs:emissiveColor = (0.44945535, 0.44945535, 0.44945535) (
+                    colorSpace = "Input - Texture - Linear - sRGB"
+                )
+                color3f inputs:emissiveColor.connect = None
+                float inputs:opacity = 0.3
+                float inputs:opacityThreshold = 0
+                float inputs:roughness = 0.5
+            }
+
+            over "MaterialXPreviewSurface"
+            {
+                float2 ui:nodegraph:node:size = (207.5, 199)
+            }
+        }
+    }
+
+    def Material "Material" (
+        active = true
+    )
+    {
+        int inputs:Mat = 0 (
+            customData = {
+                dictionary realitykit = {
+                    float2 sizeInSubgraph = (100.5, 53)
+                }
+            }
+        )
+        prepend token outputs:mtlx:surface.connect = </Root/Material/MaterialXPreviewSurface.outputs:out>
+        token outputs:realitykit:vertex
+        float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (358.25, 99.5)
+        float2 ui:nodegraph:realitykit:subgraphOutputs:size = (181.5, 99)
+
+        def Shader "MaterialXPreviewSurface" (
+            active = true
+        )
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            token outputs:out
+            float2 ui:nodegraph:node:pos = (103.75, 99.5)
+            float2 ui:nodegraph:node:size = (207.5, 199)
+        }
+    }
+
+    def RealityKitComponent "VFXEmitter"
+    {
+        uniform token info:id = "RealityKit.VFXEmitter"
+
+        def RealityKitStruct "currentState"
+        {
+            token birthLocation = "Volume"
+            float3 emissionDirection = (0, 1, 0)
+            token emitterShape = "Sphere"
+            float particleSpeed = 0
+            float3 shapeSize = (0.1, 0.1, 0.1)
+
+            def RealityKitStruct "mainEmitter"
+            {
+                float birthRate = 100
+                float4 endColorA = (1, 1, 1, 0.7728263)
+                bool useEndColor = 1
+                bool useEndColorRange = 0
+            }
+
+            def RealityKitStruct "spawnedEmitter"
+            {
+            }
+        }
     }
 }
 
